@@ -18,6 +18,12 @@ const resolvers = {
             }
 
             return foundUser;
+        },
+        me: async (parent, args, context) => {
+            if (context.user) {
+                return User.findOne({ _id: context.user._id });
+            }
+            throw new AuthenticationError('You need to be logged in!');
         }
     },
     Mutation: {
@@ -48,12 +54,12 @@ const resolvers = {
         saveBook: async(parent, args, context) => {
             if (context.user) {
                 const { user } = context;
-                const { bookId } = args;
+                const { bookData } = args;
 
                 try {
                     return await User.findOneAndUpdate(
                         { _id: user._id },
-                        { $addToSet: { savedBooks: bookId } },
+                        { $addToSet: { savedBooks: bookData } },
                         { new: true, runValidators: true }
                     );
                 } catch (err) {
